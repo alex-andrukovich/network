@@ -12,6 +12,7 @@ import subprocess
 import time
 import threading
 from multiprocessing import Process, Event, cpu_count
+import netifaces
 
 from scapy.all import Ether, ARP, sendp, sniff
 
@@ -23,6 +24,8 @@ except ImportError:
 
 IFACE = "enp3s0"
 
+
+our_mac = netifaces.ifaddresses(IFACE)[netifaces.AF_LINK][0]['addr']
 PRIORITY_OCTETS = [10, 192, 172, 100, 169]
 SKIP_OCTETS = set([0, 127]) | set(range(224, 256))
 
@@ -81,7 +84,7 @@ def handle_reply(pkt):
             found_result["ip"] = ip
             found_result["mac"] = mac
             print(f"[!] Discovered host: {ip}  MAC: {mac}")
-            stop_event.set()
+            #stop_event.set()
 
 
 def sniffer():
@@ -90,7 +93,7 @@ def sniffer():
         filter="arp and arp[6:2] = 2",
         prn=handle_reply,
         store=False,
-        stop_filter=lambda p: stop_event.is_set(),
+        #stop_filter=lambda p: stop_event.is_set(),
     )
 
 
